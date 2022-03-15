@@ -1,0 +1,34 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Scripts.Render("~/bundles/highCharts")
+
+
+
+<div class="row my-2">
+    <div class="col-sm-4">
+        @{ Html.RenderAction("CierresFactPorDelegacionPartial", "Integration"); }
+    </div>
+    @*<div class="col-sm-4">
+        @{ Html.RenderAction("ProgrammationBarPerRouteResourcesStatesPartial", "Integration"); }
+    </div>
+    <div class="col-sm-4">
+        @{ Html.RenderAction("ProgrammationBarPerGroupStatesPartial", "Integration"); }
+    </div>*@
+</div>
+<div class="row my-2">
+    <div class="col-sm-4">
+        @{ Html.RenderPartial("IntegrationBarStateReferencesPartial", Prosegur.LV.SOL.Dashboard.UI.Web.Models.IntegrationBarStateModel.GetAll()); }
+    </div>
+    @*<div class="col-sm-4">
+        @{ Html.RenderAction("ProgrammationBarServicesStatesPartial", "Integration"); }
+    </div>
+    <div class="col-sm-4">
+        @{ Html.RenderAction("ProgrammationBarResourcesStatesPartial", "Integration"); }
+    </div>*@
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <title>DTI - Dashboard</title>
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <meta name="viewport" content="width=device-width" />
+
+    @Styles.Render("~/Content/css")
+
+    @Scripts.Render("~/bundles/jquery")
+
+    @Scripts.Render("~/bundles/bootstrap")
+
+    @Scripts.Render("~/bundles/customScrollBar")
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $("#sidebar").mCustomScrollbar({
+                theme: "minimal"
+            });
+
+            // when opening the sidebar
+            $('#sidebarCollapse').on('click', function () {
+                // open sidebar
+                $('#sidebar').addClass('active');
+                // fade in the overlay
+                $('.overlay').fadeIn();
+                $('.collapse.in').toggleClass('in');
+                $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+            });
+
+
+            // if dismiss or overlay was clicked
+            $('#dismiss, .overlay').on('click', function () {
+                // hide the sidebar
+                $('#sidebar').removeClass('active');
+                // fade out the overlay
+                $('.overlay').fadeOut();
+            });
+        });
+
+    </script>
+
+    @*<style>
+
+        @@media (min-width: 992px) {
+            .modal-lg {
+                max-width: 2000px;
+            }
+        }
+
+    </style>*@
+
+</head>
+    <body>
+
+        <div class="wrapper">
+            <!-- Sidebar Holder -->
+            <nav id="sidebar">
+                <div id="dismiss">
+                    <span class="oi oi-arrow-left"></span>
+                </div>
+
+                <div class="sidebar-header">
+                    <h3>Dashboard</h3>
+                </div>
+
+                <ul class="nav nav-pills flex-column">
+                    @if (Request.IsAuthenticated)
+                    {
+                        Html.RenderAction("UserMenuPartial", "Account");
+                    }
+                </ul>
+            </nav>
+
+            <!-- Page Content Holder -->
+            <div id="content">
+
+                <nav class="navbar my-2" style="background-color: #000000">
+
+                    <div class="container-fluid">
+
+                        <a class="navbar-brand text-white" href="#">
+                            <img src="~/Images/prosegurLogo.png" height="43" />
+                            PROSEGUR DTI
+                        </a>
+
+                        <ul class="nav nav-tabs">
+
+                            @if (Request.IsAuthenticated)
+                            {
+                                <li class="nav-item bg-warning" id="sidebarCollapse">
+                                    <a class="nav-link" href="#">
+                                        Menú Dashboard
+                                    </a>                                
+                                </li>
+                            
+                                <li class="nav-item dropdown bg-warning">
+                                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                        <span class="oi oi-person"></span> Usuario <!-- @Html.Raw(((Prosegur.LV.SOL.Dashboard.UI.Web.Models.UserData)HttpContext.Current.User).UserName) -->
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="@Url.Action("LogOff", "Account")"><span class="oi oi-account-logout"></span> Cerrar Sesion</a>
+                                    </div>
+                                </li>
+
+                            }
+                        </ul>
+
+                    </div>
+                </nav>
+
+                @RenderBody()
+            </div>
+        </div>
+
+        <div class="overlay"></div>
+        
+        @RenderSection("scripts", required: false)
+    </body>
+</html>

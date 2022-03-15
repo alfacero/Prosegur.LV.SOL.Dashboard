@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Prosegur.LV.SOL.Dashboard.UI.Web.Models.JmsQueueOTMessage>
+
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">@Html.Raw(ViewBag.OTDetailsTitle)</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="container-fluid">
+                <div class="row border border-dark rounded-top">
+                    <div class="col-sm-1 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().CodDelegacion)</div>
+                    <div class="col-sm-1 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().RouteCode)</div>
+                    <div class="col-sm-2 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().CodServicio)</div>
+                    <div class="col-sm-1 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().SequenceCode)</div>
+                    <div class="col-sm-2 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().Date)</div>
+                    <div class="col-sm-5 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0 border-right-0">@Html.DisplayNameFor(m => m.FirstOrDefault().Observation)</div>
+                    @foreach (var item in Model)
+                    {
+                        <div class="col-sm-1 text-center border border-dark border-left-0 border-bottom-0">@Html.Raw(item.CodDelegacion)</div>
+                        <div class="col-sm-1 text-center border border-dark border-left-0 border-bottom-0">@Html.Raw(item.RouteCode)</div>
+                        <div class="col-sm-2 text-center border border-dark border-left-0 border-bottom-0">@Html.Raw(item.CodServicio)</div>
+                        <div class="col-sm-1 text-center border border-dark border-left-0 border-bottom-0">@Html.Raw(item.SequenceCode)</div>
+                        <div class="col-sm-2 text-center border border-dark border-left-0 border-bottom-0">@Html.Raw(item.Date.ToString("yyyy/MM/dd hh:mm:ss"))</div>
+                        <div class="col-sm-5 text-center border border-dark border-left-0 border-bottom-0 border-right-0">@Html.Raw(item.Observation)</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

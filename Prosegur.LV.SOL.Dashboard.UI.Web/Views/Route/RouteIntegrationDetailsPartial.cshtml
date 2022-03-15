@@ -1,0 +1,51 @@
+﻿@model IEnumerable<Prosegur.LV.SOL.Dashboard.UI.Web.Models.RouteIntegrationDetails>
+
+<div class="modal-dialog modal-lg" id="myModal4" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">@Html.Raw(ViewBag.OTDetailsTitle)</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="container-fluid">
+                <div class="row border border-dark rounded-top">
+                    <div class="col-sm-6 bg-dark text-white text-center">
+                        <h3>SOL</h3>
+                    </div>
+                    <div class="col-sm-6 bg-dark text-white text-center">
+                        <h3>SIG II</h3>
+                    </div>
+                    <div class="col-sm-1 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().SolRouteCode)</div>
+                    <div class="col-sm-2 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().SolServiceCode)</div>
+                    <div class="col-sm-1 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().SolSequenceCode)</div>
+                    <div class="col-sm-2 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().SolOTProgrammedBeginDateTime)</div>
+                    <div class="col-sm-1 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().SigRouteCode)</div>
+                    <div class="col-sm-2 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().SigServiceDate)</div>
+                    <div class="col-sm-1 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().SigControlCode)</div>
+                    <div class="col-sm-2 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0 border-right-0">@Html.DisplayNameFor(m => m.FirstOrDefault().SigServiceDateTime)</div>
+                    @foreach (var item in Model)
+                    {
+                        bool diferenciaEnfechaDeServicio = false;
+                        if (!string.IsNullOrEmpty(item.SolServiceCode) && item.SigRouteCode.HasValue)
+                        {
+                            if (item.SolOTProgrammedBeginDateTime != item.SigServiceDateTime)
+                            {
+                                diferenciaEnfechaDeServicio = true;
+                            }
+                        }
+                        <div class="col-sm-1 text-center border border-dark border-left-0 border-bottom-0 @(string.IsNullOrEmpty(item.SolServiceCode) || diferenciaEnfechaDeServicio ? "bg-danger" : string.Empty)">@Html.Raw(item.SolRouteCode)</div>
+                        <div class="col-sm-2 text-center border border-dark border-left-0 border-bottom-0 @(string.IsNullOrEmpty(item.SolServiceCode) || diferenciaEnfechaDeServicio  ? "bg-danger" : string.Empty)">@Html.Raw(item.SolServiceCode)</div>
+                        <div class="col-sm-1 text-center border border-dark border-left-0 border-bottom-0 @(string.IsNullOrEmpty(item.SolServiceCode) || diferenciaEnfechaDeServicio  ? "bg-danger" : string.Empty)">@Html.Raw(item.SolSequenceCode)</div>
+                        <div class="col-sm-2 text-center border border-dark border-left-0 border-bottom-0 @(string.IsNullOrEmpty(item.SolServiceCode) || diferenciaEnfechaDeServicio ? "bg-danger" : string.Empty)">@Html.Raw((!string.IsNullOrEmpty(item.SolServiceCode) ? item.SolOTProgrammedBeginDateTime.Value.ToString("yyyy/MM/dd hh:mm:ss") : string.Empty))</div>
+                        <div class="col-sm-1 text-center border border-dark border-left-0 border-bottom-0 @(!item.SigRouteCode.HasValue || diferenciaEnfechaDeServicio ? "bg-danger" : string.Empty)">@Html.Raw(item.SigRouteCode)</div>
+                        <div class="col-sm-2 text-center border border-dark border-left-0 border-bottom-0 @(!item.SigRouteCode.HasValue || diferenciaEnfechaDeServicio ? "bg-danger" : string.Empty)">@Html.Raw(item.SigServiceDate)</div>
+                        <div class="col-sm-1 text-center border border-dark border-left-0 border-bottom-0 @(!item.SigRouteCode.HasValue || diferenciaEnfechaDeServicio ? "bg-danger" : string.Empty)">@Html.Raw(item.SigControlCode)</div>
+                        <div class="col-sm-2 text-center border border-dark border-left-0 border-bottom-0 border-right-0 @(!item.SigRouteCode.HasValue || diferenciaEnfechaDeServicio ? "bg-danger" : string.Empty)">@Html.Raw((item.SigRouteCode.HasValue ? item.SigServiceDateTime.Value.ToString("yyyy/MM/dd hh:mm:ss") : string.Empty))</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

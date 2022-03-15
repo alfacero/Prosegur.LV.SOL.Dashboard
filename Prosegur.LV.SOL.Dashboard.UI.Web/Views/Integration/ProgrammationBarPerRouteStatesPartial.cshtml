@@ -1,0 +1,501 @@
+﻿@model Prosegur.LV.SOL.Dashboard.UI.Web.Models.ProgrammationBarFilterViewModel
+
+@{
+    string viewName = Html.ViewData["ViewName"].ToString();
+    string objectIdsFormat = viewName + "_{0}";
+}
+
+<div class="card">
+    <div class="card-body collapse show" id="@string.Format(objectIdsFormat, "dashBoardBody")">
+
+        <div id="@string.Format(objectIdsFormat, "chart")"></div>
+
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="@string.Format(objectIdsFormat, "modalFilters")">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form id="@string.Format(objectIdsFormat, "formFilters")">
+                    <div class="form-group">
+                        @Html.LabelFor(f => f.ProgrammationServiceOffset, new { @class = "col-form-label" })
+                        @Html.DropDownListFor(f => f.ProgrammationServiceOffset, Model.Days, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(f => f.ProgrammationServiceOffset)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(f => f.Delegations, new { @class = "col-form-label" })
+                        @Html.DropDownListFor(f => f.DelegationCodes, Model.Delegations, new { multiple = "multiple", @class = "form-control", @style = "height:400px;line-height:400px;" })
+                        @Html.ValidationMessageFor(f => f.DelegationCodes)
+                    </div>
+
+                    <input type="hidden" name="__prefix" value="@ViewData.TemplateInfo.HtmlFieldPrefix" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-target="#@string.Format(objectIdsFormat, "modalFilters")" id="@string.Format(objectIdsFormat, "acceptFilter")">Aceptar</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="@string.Format(objectIdsFormat, "intervalContainer")"></div>
+
+<div class="modal fade" id="@string.Format(objectIdsFormat, "modalDetails")" tabindex="-1" role="dialog" aria-hidden="true"></div>
+
+<input type="hidden" id="@string.Format(objectIdsFormat, "messageIdsWithErrors")" value="" />
+<input type="hidden" id="@string.Format(objectIdsFormat, "sigIIProgrammationPendings")" value="" />
+
+<script type="text/javascript">
+
+    $(function () {
+
+        var chartData;
+
+        var refreshTimeSecondsInterval = @Prosegur.LV.SOL.Dashboard.Core.Configuracion.RefrescoAutomaticoSegundos;
+        var nextRefreshSeconds;
+        var loadingMessage = 'Procesando datos...'
+
+        var labelError;
+        var labelWarning;
+
+        var $intervalContainer = $('#@string.Format(objectIdsFormat, "intervalContainer")');
+
+        var gettingProgrammedStates = false;
+
+        var refreshButton;
+
+        var automaticRefreshSet = false;
+
+        var otIntegrationSummary;
+
+        $('#@Html.IdFor(f => f.DelegationCodes)').change(function (event) {
+
+            var $this = $(this);
+
+            if ($this.val().length > 4) {
+
+                $this.val($this.data('last_valid_selection'));
+
+            } else {
+
+                $this.data('last_valid_selection', $this.val());
+
+            }
+
+        });
+        
+        var barChartProgrammedStatesSummary = Highcharts.chart('@string.Format(objectIdsFormat, "chart")', {
+            chart: {
+                type: 'bar',
+                animation: false
+            },
+            title: { text: '@Html.Raw(ViewData["ChartTitle"].ToString())' },
+            xAxis: {
+                title: {
+                    text: null
+                }
+            },
+            yAxis: {
+                min: 0,
+                allowDecimals: false,
+                title: {
+                    enabled: false
+                }
+            },
+            plotOptions: {
+                bar: {
+                    dataLabels: {
+                        enabled: true
+                    }
+                },
+                series: {
+                    events: {
+                        click: function (event) {
+                            if (this.userOptions.statusCode == 3 && this.userOptions.data[event.point.index][1] > 0) {
+
+                                var delegation = otIntegrationSummary.Delegations[event.point.index];
+
+                                var $modalDetails = $('#@string.Format(objectIdsFormat, "modalDetails")');
+
+                                var $inputHiddenMessageIdsWithErrors = $('#@string.Format(objectIdsFormat, "messageIdsWithErrors")');
+                                var $inputHiddenSigIIProgrammationPendings = $('#@string.Format(objectIdsFormat, "sigIIProgrammationPendings")');
+
+                                var dataToPost = new Object();
+
+                                var messagesError = $inputHiddenMessageIdsWithErrors.val().split(',');
+                                dataToPost.errorJmsIds = [];
+                                for (var message in messagesError) {
+                                    if (messagesError[message].split('|')[0] == delegation.Code) {
+
+                                        dataToPost.errorJmsIds.push(messagesError[message].split('|')[1]);
+
+                                    }
+                                }
+
+                                var pendings = $inputHiddenSigIIProgrammationPendings.val().split(',');
+                                dataToPost.sigIIProgrammationPendings = [];
+                                for (var pending in pendings) {
+                                    if (pendings[pending].split('|')[0] == delegation.Code) {
+
+                                        dataToPost.sigIIProgrammationPendings.push(pendings[pending]);
+                                    }
+                                }
+
+                                dataToPost.programmationServiceOffset = $('#@Html.IdFor(f => f.ProgrammationServiceOffset)').val();
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("ProgrammationBarPerRouteErrorDetails", "Integration")',
+                                    traditional: true,
+                                    data: dataToPost,
+                                    success: function (response, textStatus, jqXHR) {
+
+                                        if (response.result) {
+
+                                            $modalDetails.html(response.data);
+                                            $modalDetails.modal('show');
+
+                                        }
+                                        else {
+
+                                            labelError = barChartProgrammedStatesSummary.addChartLabel('error', response.data);
+
+                                        }
+                                    },
+                                    beforeSend: function (jqXHR, settings) {
+
+                                        if (labelError !== undefined) {
+                                            labelError.destroy();
+                                        }
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+
+                                        if (jqXHR.status != 401) {
+
+                                            barChartProgrammedStatesSummary.hideLoading();
+
+                                            labelError = barChartProgrammedStatesSummary.addChartLabel('error', errorThrown);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            credits: {
+                enabled: false
+            },
+            exporting: {
+                menuItemDefinitions: {
+                    parameters: {
+                        onclick: function () {
+                            $('#@string.Format(objectIdsFormat, "modalFilters")').modal('show');
+                        },
+                        text: 'Parametros'
+                    },
+                    autoRefresh: {
+                        onclick: function () {
+
+                            if (chartData !== undefined && chartData.length > 0) {
+
+                                nextRefreshSeconds = refreshTimeSecondsInterval;
+
+                                automaticRefreshSet = true;
+
+                                AddRefreshButton();
+
+                                RefreshAction();
+
+                                barChartProgrammedStatesSummary.update({
+                                    exporting: {
+                                        enabled: false
+                                    }
+                                });
+                            }
+                        },
+                        text: 'Refresco Automatico'
+                    }
+                },
+                buttons: {
+                    contextButton: {
+                        menuItems: ['parameters', 'autoRefresh']
+                    }
+                }
+            }
+        });
+
+        function UpdateProgrammedStatesSummary() {
+
+            var subTitle = '';
+        
+
+
+            $('#@Html.IdFor(f => f.DelegationCodes)').find(":selected").each(function (idx, value) {
+                subTitle += (idx > 0 ? ", " : " ") + $(value).text();
+            });
+
+            let d = new Date();
+            d.setDate(d.getDate() + parseInt($('#@Html.IdFor(f => f.ProgrammationServiceOffset)').val()));
+            let month = String(d.getMonth() + 1);
+            let day = String(d.getDate());
+            const year = String(d.getFullYear());
+
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+
+            barChartProgrammedStatesSummary.setTitle({ text: '@Html.Raw(ViewData["ChartTitle"].ToString())' }, { text: subTitle + ' - ' + day + '/' + month + '/' + year }, true);
+
+            var dataToPost = $('#@string.Format(objectIdsFormat, "formFilters")').serialize()
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action(ViewContext.RouteData.Values["action"].ToString(), "Integration")',
+                data: dataToPost,
+                beforeSend: function (jqXHR, settings) {
+
+                    while (barChartProgrammedStatesSummary.series.length > 0) {
+                        barChartProgrammedStatesSummary.series[0].remove(false);
+                    }
+
+                    barChartProgrammedStatesSummary.redraw();
+
+                    if (labelError !== undefined) {
+                        labelError.destroy();
+                        labelError = undefined;
+                    }
+
+                    if (labelWarning !== undefined) {
+                        labelWarning.destroy();
+                        labelWarning = undefined;
+                    }
+
+                    if (chartData === undefined || chartData.length == 0) {
+                        barChartProgrammedStatesSummary.showLoading(loadingMessage);
+                    }
+
+                },
+                complete: function () {
+
+                    gettingProgrammedStates = false;
+
+                }
+            })
+            .then(function (response, textStatus, jqXHR) {
+                barChartProgrammedStatesSummary.hideLoading();
+
+                if (response.result) {
+
+                    var jsonData = JSON.parse(response["data"]);
+
+                    otIntegrationSummary = jsonData.ProgrammationStates;
+
+                    chartData = [];
+
+                    for (var key in otIntegrationSummary.ProgrammationStates) {
+                        if (otIntegrationSummary.ProgrammationStates.hasOwnProperty(key)) {
+
+                            var messageState = otIntegrationSummary.ProgrammationStates[key];
+
+                            data = {
+                                name: messageState.State.Description,
+                                data: messageState.DelegationsQuantity,
+                                statusCode: messageState.State.Code,
+                                color: messageState.State.HexaColor
+                            }
+                            
+                            chartData.push(data);
+                        }
+                    }
+                    
+                    var dataTotal = [];
+                    for (var j = 0; j < otIntegrationSummary.Delegations.length; j++) {
+                        var sum = 0;
+                        for (var i = 0; i < chartData.length; i++) {
+                            var delData = chartData[i].data.find(function (element, index, array) {
+                                if (element !== undefined && element[0] == j) {
+                                    return element;
+                                }
+                            })
+                            if (delData !== undefined) {
+                                sum += delData[1] ;
+                            }
+                        };
+
+                        dataTotal.push(sum);
+                    }
+
+                    var $inputHidden = $('#@string.Format(objectIdsFormat, "messageIdsWithErrors")');
+
+                    $inputHidden.val('');
+                    for (var jmsId in jsonData.ErrorMessagesId) {
+                        $inputHidden.val($inputHidden.val() + ($inputHidden.val() == '' ? '' : ',') + jsonData.ErrorMessagesId[jmsId]);
+                    }
+
+                    var $inputHiddenDelegations = $('#@string.Format(objectIdsFormat, "sigIIProgrammationPendings")');
+
+                    $inputHiddenDelegations.val('');
+                    for (var delegation in jsonData.SigIIProgrammationPendings) {
+                        $inputHiddenDelegations.val($inputHiddenDelegations.val() + ($inputHiddenDelegations.val() == '' ? '' : ',')
+                            + jsonData.SigIIProgrammationPendings[delegation]);
+                    }
+
+                    if (dataTotal.length > 0) {
+
+                        $.each(chartData, function (itemNo, item) {
+                            barChartProgrammedStatesSummary.addSeries({
+                                name: item.name,
+                                data: item.data,
+                                statusCode: item.statusCode,
+                                color: item.color
+                            }, true);
+                        })
+
+                        barChartProgrammedStatesSummary.xAxis[0].setCategories(otIntegrationSummary.Delegations.map(function (desc, idx) {
+                            return desc.Description + '<br/><strong>Total: ' + dataTotal[idx] + '</strong>';
+                        }));
+
+                        if (automaticRefreshSet) {
+                            AddRefreshButton();
+                        }
+
+                    }
+                    else {
+
+                        labelWarning = barChartProgrammedStatesSummary.addChartLabel('warning', 'No hay datos');
+
+                        return $.Deferred().reject(jqXHR, textStatus, 'NO DATA').promise();
+
+                    }
+                }
+                else {
+
+                    return $.Deferred().reject(jqXHR, textStatus, response.data).promise();
+
+                }
+
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+
+                if (jqXHR.status != 401) {
+
+                    if (errorThrown != 'NO DATA') {
+
+                        chartData = [];
+
+                        barChartProgrammedStatesSummary.hideLoading();
+
+                        labelError = barChartProgrammedStatesSummary.addChartLabel('error', errorThrown);
+
+                    }
+
+                    if (automaticRefreshSet) {
+
+                        ClearInterval();
+
+                        barChartProgrammedStatesSummary.update({
+                            exporting: {
+                                enabled: true
+                            }
+                        });
+                    }
+
+                }
+
+            });
+        }
+
+        $("#@string.Format(objectIdsFormat, "acceptFilter")").click(function (e) {
+
+            if ($('#@string.Format(objectIdsFormat, "formFilters")').valid()) {
+
+                $('#@string.Format(objectIdsFormat, "modalFilters")').modal('hide');
+
+                UpdateProgrammedStatesSummary();
+            }
+        });
+
+        function ClearInterval() {
+
+            automaticRefreshSet = false;
+
+            var interval = $intervalContainer.data('activeInterval');
+
+            clearInterval(interval);
+
+            $intervalContainer.removeData('activeInterval');
+        }
+
+        function AddRefreshButton() {
+
+            refreshButton = barChartProgrammedStatesSummary.renderer.button(refreshTimeSecondsInterval + 'ˮ', undefined, undefined, function () {
+
+                ClearInterval();
+
+                barChartProgrammedStatesSummary.update({
+                    exporting: {
+                        enabled: true
+                    }
+                });
+
+                if (refreshButton.element !== undefined) {
+                    refreshButton.destroy();
+
+                    barChartProgrammedStatesSummary.setTitle({ text: '@Html.Raw(ViewData["ChartTitle"].ToString())' })
+                }
+
+            }).add();
+
+            var textX = barChartProgrammedStatesSummary.plotWidth;
+            var textY = barChartProgrammedStatesSummary.plotTop;
+
+            //textX = textX - refreshButton.getBBox().width - barChartProgrammedStatesSummary.plotLeft - 200;
+            textX = barChartProgrammedStatesSummary.marginRight;
+
+            refreshButton.align({ x: textX, y: textY });
+            refreshButton.attr('text', '<strong>Detener</strong>');
+
+        }
+
+        function RefreshAction() {
+
+            var interval = $intervalContainer.data('activeInterval');
+
+            interval = setInterval(function () {
+
+                if (nextRefreshSeconds > 0 && !gettingProgrammedStates) {
+
+                    nextRefreshSeconds--;
+
+                    //refreshButton.attr('text', nextRefreshSeconds + "ˮ");
+
+                    barChartProgrammedStatesSummary.setTitle({ text: '@Html.Raw(ViewData["ChartTitle"].ToString())' + " " + nextRefreshSeconds + "ˮ" })
+                }
+
+                if (nextRefreshSeconds == 0) {
+
+                    nextRefreshSeconds = refreshTimeSecondsInterval;
+
+                    if (refreshButton.element !== undefined) {
+                        refreshButton.destroy();
+                    }
+
+                    if (!gettingProgrammedStates) {
+                        gettingProgrammedStates = true;
+                        UpdateProgrammedStatesSummary();
+                    }
+
+                }
+
+            }, 1000);
+
+            $intervalContainer.data('activeInterval', interval);
+        }
+    });
+
+</script>

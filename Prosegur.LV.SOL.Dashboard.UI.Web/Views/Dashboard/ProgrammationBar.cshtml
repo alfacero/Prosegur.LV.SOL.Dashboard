@@ -1,0 +1,85 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Scripts.Render("~/bundles/highCharts")
+
+@*<script>
+
+    Highcharts.Chart.prototype.addChartLabel = function (type, message) {
+
+        element = this.renderer.label(message);
+
+        if (type == 'error') {
+
+            element.css({
+                color: '#FFFFFF',
+                fontSize: '1.1em',
+                width: 350
+            })
+                .attr({
+                    fill: '#ff0000',
+                    padding: 8,
+                    r: 5,
+                    zIndex: 6
+                });
+
+        }
+
+        if (type == 'warning') {
+
+            element.css({
+                color: '#000000',
+                fontSize: '3em'
+            })
+                .attr({
+                    fill: '#ffc107',
+                    padding: 8,
+                    r: 5,
+                    zIndex: 6
+                });
+
+        }
+
+        element.add();
+
+        var textX = this.plotLeft + (this.plotWidth * 0.5);
+        var textY = this.plotTop + (this.plotHeight * 0.3);
+
+        textX = textX - (element.getBBox().width / 2);
+
+        element.align({ x: textX, y: textY });
+
+        return element;
+    }
+
+
+
+</script>*@
+
+<div class="row my-2">
+    <div class="col-sm-4"> <!--- esto es una parcial view que se renderiza con renderaction-->
+        @{ Html.RenderAction("ProgrammationBarPerRouteServicesStatesPartial", "Integration"); }
+    </div>
+    <div class="col-sm-4">
+        @{ Html.RenderAction("ProgrammationBarPerRouteResourcesStatesPartial", "Integration"); }
+    </div>
+    <div class="col-sm-4">
+        @{ Html.RenderAction("ProgrammationBarPerGroupStatesPartial", "Integration"); }
+    </div>
+</div>
+<div class="row my-2">
+    <div class="col-sm-4">
+        @{ Html.RenderPartial("IntegrationBarStateReferencesPartial", Prosegur.LV.SOL.Dashboard.UI.Web.Models.IntegrationBarStateModel.GetAll()); }
+    </div>
+    <div class="col-sm-4">
+        @{ Html.RenderAction("ProgrammationBarServicesStatesPartial", "Integration"); }
+    </div>
+    <div class="col-sm-4">
+        @{ Html.RenderAction("ProgrammationBarResourcesStatesPartial", "Integration"); }
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

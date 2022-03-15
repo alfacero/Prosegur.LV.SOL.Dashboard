@@ -1,0 +1,424 @@
+﻿@model Prosegur.LV.SOL.Dashboard.UI.Web.Models.RouteBalanceFilterViewModel  
+
+@{
+    string viewName = Html.ViewData["ViewName"].ToString();
+    string objectIdsFormat = viewName + "_{0}";
+}
+
+<div class="card">
+    <div class="card-body collapse show" id="@string.Format(objectIdsFormat, "dashBoardBody")">
+
+        <div id="@string.Format(objectIdsFormat, "chart")"></div>
+
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="@string.Format(objectIdsFormat, "modalFilters")">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form id="@string.Format(objectIdsFormat, "formFilters")">
+                    <div class="form-group">
+                        @Html.LabelFor(f => f.RouteDate, new { @class = "col-form-label" })
+                        @Html.TextBoxFor(f => f.RouteDate, new { @class = "form-control datepicker" })
+                        @Html.ValidationMessageFor(f => f.RouteDate)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(f => f.Delegations, new { @class = "col-form-label" })
+                        @Html.DropDownListFor(f => f.DelegationCodes, Model.Delegations, new { multiple = "multiple", @class = "form-control" })
+                        @Html.ValidationMessageFor(f => f.DelegationCodes)
+                    </div>
+
+                    <input type="hidden" name="__prefix" value="@ViewData.TemplateInfo.HtmlFieldPrefix" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-target="#@string.Format(objectIdsFormat, "modalFilters")" id="@string.Format(objectIdsFormat, "acceptFilter")">Aceptar</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="@string.Format(objectIdsFormat, "intervalContainer")"></div>
+
+<div class="modal fade" id="@string.Format(objectIdsFormat, "modalDetails")" tabindex="-1" role="dialog" aria-hidden="true"></div>
+
+<input type="hidden" id="@string.Format(objectIdsFormat, "routeWithErrors")" value="" />
+
+<script type="text/javascript">
+
+    $(function () {
+
+        var pieChartRouteSummary;
+        var chartData;
+
+        var refreshTimeSecondsInterval = @Prosegur.LV.SOL.Dashboard.Core.Configuracion.RefrescoAutomaticoSegundos;
+        var nextRefreshSeconds = 0;
+        var loadingMessage = 'Procesando datos...'
+
+        var labelError;
+        var labelWarning;
+
+        var $intervalContainer = $('#@string.Format(objectIdsFormat, "intervalContainer")');
+
+        $("#@Html.IdFor(f => f.RouteDate)")
+            // Limitado a 5 dias hacia atras
+            .datepicker({ dateFormat: "dd/mm/yy", minDate: -5 })
+            .datepicker("setDate", new Date());
+
+        var gettingRouteBalances = false;
+
+        var refreshButton;
+
+        var automaticRefreshSet = false;
+
+        var pieChartRouteSummary = Highcharts.chart('@string.Format(objectIdsFormat, "chart")', {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie',
+                height: '70%'
+            },
+            credits: {
+                enabled: false
+            },
+            title: { text: '@Html.Raw(ViewData["ChartTitle"].ToString())' },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: false,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: false,
+                    },
+                }
+            },
+            legend: {
+                enabled: false,
+            },
+            exporting: {
+                menuItemDefinitions: {
+                    parameters: {
+                        onclick: function () {
+                            $('#@string.Format(objectIdsFormat, "modalFilters")').modal('show');
+                        },
+                        text: 'Parametros'
+                    },
+                    autoRefresh: {
+                        onclick: function () {
+
+                            if (chartData !== undefined && chartData.length > 0) {
+
+                                nextRefreshSeconds = refreshTimeSecondsInterval;
+                                
+                                automaticRefreshSet = true;
+
+                                AddRefreshButton();
+
+                                RefreshAction();
+
+                                pieChartRouteSummary.update({
+                                    exporting: {
+                                        enabled: false
+                                    }
+                                });
+
+                            }
+                        },
+                        text: 'Refresco Automatico'
+                    }
+                },
+                buttons: {
+                    contextButton: {
+                        menuItems: ['parameters', 'autoRefresh']
+                    }
+                }
+            },
+            series: [{
+                name: 'Integracion',
+                colorByPoint: true,
+                point: {
+                    events: {
+                        click: function () {
+
+                            // Busco el detalle de las rutas con Error
+                            if (this.statusCode == 1) {
+
+                                var $modalDetails = $('#@string.Format(objectIdsFormat, "modalDetails")');
+
+                                var $inputHiddenRouteWErrors = $('#@string.Format(objectIdsFormat, "routeWithErrors")');
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("RouteIntegrationDetailsPartial", "Route")',
+                                    traditional: true,
+                                    data: { routeWithErrors: $inputHiddenRouteWErrors.val().split(','), fecRuta: $('#@Html.IdFor(f => f.RouteDate)').val() },
+                                    success: function (response, textStatus, jqXHR) {
+
+                                        if (response.result) {
+
+                                            $modalDetails.html(response.data);
+                                            $modalDetails.modal('show');
+
+                                        }
+                                        else {
+
+                                            labelError = pieChartRouteSummary.addChartLabel('error', response.data);
+
+                                        }
+                                    },
+                                    beforeSend: function (jqXHR, settings) {
+
+                                        if (labelError !== undefined) {
+                                            labelError.destroy();
+                                        }
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+
+                                        if (jqXHR.status != 401) {
+
+                                            pieChartRouteSummary.hideLoading();
+
+                                            labelError = pieChartRouteSummary.addChartLabel('error', errorThrown);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }]
+        });
+
+        function UpdateRouteSummary() {
+
+            var subTitle = '';
+            $('#@Html.IdFor(f => f.DelegationCodes)').find(":selected").each(function (idx, value) {
+                subTitle += (idx > 0 ? ", " : " ") + $(value).text();
+            });
+
+            pieChartRouteSummary.setTitle({ text: '@Html.Raw(ViewData["ChartTitle"].ToString())' }, { text: subTitle + ' - ' + $('#@Html.IdFor(f => f.RouteDate)').val() }, true);
+
+            var dataToPost = $('#@string.Format(objectIdsFormat, "formFilters")').serialize()
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action(ViewContext.RouteData.Values["action"].ToString(), "Route")',
+                data: dataToPost,
+                beforeSend: function (jqXHR, settings) {
+
+                    pieChartRouteSummary.series[0].setData([]);
+
+                    if (labelError !== undefined) {
+                        labelError.destroy();
+                        labelError = undefined;
+                    }
+
+                    if (labelWarning !== undefined) {
+                        labelWarning.destroy();
+                        labelWarning = undefined;
+                    }
+
+                    if (chartData === undefined || chartData.length == 0) {
+                        pieChartRouteSummary.showLoading(loadingMessage);
+                    }
+
+                },
+                complete: function () {
+                    
+                    gettingRouteBalances = false;
+
+                }
+            })
+            .then(function (response, textStatus, jqXHR) {
+
+                    pieChartRouteSummary.hideLoading();
+
+                    if (response.result) {
+
+                        var jsonData = JSON.parse(response["data"]);
+
+                        var stateRoutesSummary = jsonData.StateRoutesSummary;
+
+                        chartData = [];
+
+                        for (var key in stateRoutesSummary) {
+                            if (stateRoutesSummary.hasOwnProperty(key)) {
+                                var stateRoute = stateRoutesSummary[key];
+
+                                // #ff0000 RED
+                                // #ffff00 YELLOW
+                                // #008B00 GREEN
+
+                                if (stateRoute.Quantity > 0) {
+
+                                    var color;
+
+                                    if (stateRoute.RouteState.Code == '0') {
+                                        color = '#006400';
+                                    }
+
+                                    if (stateRoute.RouteState.Code == '1') {
+                                        color = '#ff0000';
+                                    }
+
+                                    chartData.push(
+                                    {
+                                        "name": stateRoute.RouteState.Description,
+                                        "y": stateRoute.Quantity,
+                                        "statusCode": stateRoute.RouteState.Code,
+                                        "color": color
+                                    });
+                                }
+                            }
+                        }
+
+                        var $inputHidden = $('#@string.Format(objectIdsFormat, "routeWithErrors")');
+
+                        $inputHidden.val('');
+                        for (var routeCode in jsonData.RoutesWithError) {
+                            $inputHidden.val($inputHidden.val() + ($inputHidden.val() == '' ? '' : ',') + jsonData.RoutesWithError[routeCode]);
+                        }
+
+                        if (chartData !== undefined && chartData.length > 0) {
+
+                            pieChartRouteSummary.series[0].setData(chartData);
+
+                            if (automaticRefreshSet) {
+                                AddRefreshButton();
+                            }
+
+                        }
+                        else {
+
+                            labelWarning = pieChartRouteSummary.addChartLabel('warning', 'No hay datos');
+
+                            return $.Deferred().reject(jqXHR, textStatus, 'NO DATA').promise();
+
+                        }
+                    }
+                    else {
+
+                        return $.Deferred().reject(jqXHR, textStatus, response.data).promise();
+
+                    }
+                })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+
+                    if (jqXHR.status != 401) {
+
+                        if (errorThrown != 'NO DATA') {
+
+                            chartData = [];
+
+                            pieChartRouteSummary.hideLoading();
+
+                            labelError = pieChartRouteSummary.addChartLabel('error', errorThrown);
+
+                        }
+
+                        if (automaticRefreshSet) {
+
+                            ClearInterval();
+
+                            pieChartRouteSummary.update({
+                                exporting: {
+                                    enabled: true
+                                }
+                            });
+                        }
+
+                    }
+
+                }); 
+        }
+
+        $("#@string.Format(objectIdsFormat, "acceptFilter")").click(function (e) {
+            
+            if ($('#@string.Format(objectIdsFormat, "formFilters")').valid()) {
+
+                $('#@string.Format(objectIdsFormat, "modalFilters")').modal('hide');
+
+                UpdateRouteSummary();
+            }
+        });
+
+        function ClearInterval() {
+
+            automaticRefreshSet = false;
+
+            var interval = $intervalContainer.data('activeInterval');
+
+            clearInterval(interval);
+
+            $intervalContainer.removeData('activeInterval');
+        }
+
+        function AddRefreshButton() {
+
+            refreshButton = pieChartRouteSummary.renderer.button(refreshTimeSecondsInterval + 'ˮ', undefined, undefined, function () {
+
+                ClearInterval();
+
+                pieChartRouteSummary.update({
+                    exporting: {
+                        enabled: true
+                    }
+                });
+
+                if (refreshButton.element !== undefined) {
+                    refreshButton.destroy();
+                }
+
+            }).add();
+
+            var textX = pieChartRouteSummary.plotWidth;
+            var textY = pieChartRouteSummary.plotTop;
+
+            textX = textX - refreshButton.getBBox().width - pieChartRouteSummary.plotLeft - 20;
+
+            refreshButton.align({ x: textX, y: textY });
+
+        }
+
+        function RefreshAction() {
+
+            var interval = $intervalContainer.data('activeInterval');
+            
+            interval = setInterval(function () {
+
+                if (nextRefreshSeconds > 0 && !gettingRouteBalances) {
+
+                    nextRefreshSeconds--;
+
+                    refreshButton.attr('text', nextRefreshSeconds + "ˮ");
+
+                }
+
+                if (nextRefreshSeconds == 0) {
+
+                    nextRefreshSeconds = refreshTimeSecondsInterval;
+
+                    if (refreshButton.element !== undefined) {
+                        refreshButton.destroy();
+                    }
+
+                    if (!gettingRouteBalances) {
+                        gettingRouteBalances = true;
+                        UpdateRouteSummary();
+                    }
+
+                }
+                                
+            }, 1000);
+
+            $intervalContainer.data('activeInterval', interval);
+
+        }
+    });
+
+</script>

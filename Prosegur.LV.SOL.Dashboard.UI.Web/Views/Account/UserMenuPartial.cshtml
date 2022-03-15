@@ -1,0 +1,9 @@
+﻿@model IEnumerable<Prosegur.LV.SOL.Dashboard.UI.Web.Models.DashboardMenuViewModel>
+
+@foreach (Prosegur.LV.SOL.Dashboard.UI.Web.Models.DashboardMenuViewModel menu in Model)
+{ 
+    <li class="nav-item">
+        @Html.ActionLink(menu.LinkText, menu.ActionName, menu.ControllerName, null, new { @class = "nav-link" })
+    </li>
+}
+

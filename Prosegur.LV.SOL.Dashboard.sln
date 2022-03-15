@@ -1,0 +1,114 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31515.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prosegur.LV.SOL.Dashboard.Entities", "Prosegur.LV.SOL.Dashboard.Entities\Prosegur.LV.SOL.Dashboard.Entities.csproj", "{57122921-8B14-4B07-BB9D-8F4F8D0B4636}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prosegur.LV.SOL.Dashboard.DAO", "Prosegur.LV.SOL.Dashboard.DAO\Prosegur.LV.SOL.Dashboard.DAO.csproj", "{839EAA8E-6687-4CDC-8E4D-82A693370749}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prosegur.LV.SOL.Dashboard.Core", "Prosegur.LV.SOL.Dashboard.Core\Prosegur.LV.SOL.Dashboard.Core.csproj", "{81078DDF-EACD-43C3-B5DE-7342F725FFA4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "TestConsole\TestConsole.csproj", "{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prosegur.LV.SOL.Dashboard.UI.Web", "Prosegur.LV.SOL.Dashboard.UI.Web\Prosegur.LV.SOL.Dashboard.UI.Web.csproj", "{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{57122921-8B14-4B07-BB9D-8F4F8D0B4636}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57122921-8B14-4B07-BB9D-8F4F8D0B4636}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57122921-8B14-4B07-BB9D-8F4F8D0B4636}.Debug|x64.ActiveCfg = Debug|x64
+		{57122921-8B14-4B07-BB9D-8F4F8D0B4636}.Debug|x64.Build.0 = Debug|x64
+		{57122921-8B14-4B07-BB9D-8F4F8D0B4636}.Debug|x86.ActiveCfg = Debug|x86
+		{57122921-8B14-4B07-BB9D-8F4F8D0B4636}.Debug|x86.Build.0 = Debug|x86
+		{57122921-8B14-4B07-BB9D-8F4F8D0B4636}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57122921-8B14-4B07-BB9D-8F4F8D0B4636}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57122921-8B14-4B07-BB9D-8F4F8D0B4636}.Release|x64.ActiveCfg = Release|x64
+		{57122921-8B14-4B07-BB9D-8F4F8D0B4636}.Release|x64.Build.0 = Release|x64
+		{57122921-8B14-4B07-BB9D-8F4F8D0B4636}.Release|x86.ActiveCfg = Release|x86
+		{57122921-8B14-4B07-BB9D-8F4F8D0B4636}.Release|x86.Build.0 = Release|x86
+		{839EAA8E-6687-4CDC-8E4D-82A693370749}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{839EAA8E-6687-4CDC-8E4D-82A693370749}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{839EAA8E-6687-4CDC-8E4D-82A693370749}.Debug|x64.ActiveCfg = Debug|x64
+		{839EAA8E-6687-4CDC-8E4D-82A693370749}.Debug|x64.Build.0 = Debug|x64
+		{839EAA8E-6687-4CDC-8E4D-82A693370749}.Debug|x86.ActiveCfg = Debug|x86
+		{839EAA8E-6687-4CDC-8E4D-82A693370749}.Debug|x86.Build.0 = Debug|x86
+		{839EAA8E-6687-4CDC-8E4D-82A693370749}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{839EAA8E-6687-4CDC-8E4D-82A693370749}.Release|Any CPU.Build.0 = Release|Any CPU
+		{839EAA8E-6687-4CDC-8E4D-82A693370749}.Release|x64.ActiveCfg = Release|x64
+		{839EAA8E-6687-4CDC-8E4D-82A693370749}.Release|x64.Build.0 = Release|x64
+		{839EAA8E-6687-4CDC-8E4D-82A693370749}.Release|x86.ActiveCfg = Release|x86
+		{839EAA8E-6687-4CDC-8E4D-82A693370749}.Release|x86.Build.0 = Release|x86
+		{81078DDF-EACD-43C3-B5DE-7342F725FFA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81078DDF-EACD-43C3-B5DE-7342F725FFA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81078DDF-EACD-43C3-B5DE-7342F725FFA4}.Debug|x64.ActiveCfg = Debug|x64
+		{81078DDF-EACD-43C3-B5DE-7342F725FFA4}.Debug|x64.Build.0 = Debug|x64
+		{81078DDF-EACD-43C3-B5DE-7342F725FFA4}.Debug|x86.ActiveCfg = Debug|x86
+		{81078DDF-EACD-43C3-B5DE-7342F725FFA4}.Debug|x86.Build.0 = Debug|x86
+		{81078DDF-EACD-43C3-B5DE-7342F725FFA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81078DDF-EACD-43C3-B5DE-7342F725FFA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81078DDF-EACD-43C3-B5DE-7342F725FFA4}.Release|x64.ActiveCfg = Release|x64
+		{81078DDF-EACD-43C3-B5DE-7342F725FFA4}.Release|x64.Build.0 = Release|x64
+		{81078DDF-EACD-43C3-B5DE-7342F725FFA4}.Release|x86.ActiveCfg = Release|x86
+		{81078DDF-EACD-43C3-B5DE-7342F725FFA4}.Release|x86.Build.0 = Release|x86
+		{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}.Debug|x64.ActiveCfg = Debug|x64
+		{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}.Debug|x64.Build.0 = Debug|x64
+		{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}.Debug|x86.ActiveCfg = Debug|x86
+		{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}.Debug|x86.Build.0 = Debug|x86
+		{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}.Release|x64.ActiveCfg = Release|x64
+		{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}.Release|x64.Build.0 = Release|x64
+		{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}.Release|x86.ActiveCfg = Release|x86
+		{B5E3ADE3-CE5D-4AC2-994D-D70C2EBC4D4E}.Release|x86.Build.0 = Release|x86
+		{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}.Debug|x64.ActiveCfg = Debug|x64
+		{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}.Debug|x64.Build.0 = Debug|x64
+		{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}.Debug|x86.ActiveCfg = Debug|x86
+		{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}.Debug|x86.Build.0 = Debug|x86
+		{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}.Release|x64.ActiveCfg = Release|x64
+		{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}.Release|x64.Build.0 = Release|x64
+		{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}.Release|x86.ActiveCfg = Release|x86
+		{C8B8435A-E6D0-49D1-B0B4-DAF160537E99}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A6630A8E-EB64-4C3C-9A4A-DD22C0EE9492}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 6
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://10.54.248.47:8080/tfs/dtilvprojectcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = Prosegur.LV.SOL.Dashboard.Entities\\Prosegur.LV.SOL.Dashboard.Entities.csproj
+		SccProjectName1 = Prosegur.LV.SOL.Dashboard.Entities
+		SccLocalPath1 = Prosegur.LV.SOL.Dashboard.Entities
+		SccProjectUniqueName2 = Prosegur.LV.SOL.Dashboard.DAO\\Prosegur.LV.SOL.Dashboard.DAO.csproj
+		SccProjectName2 = Prosegur.LV.SOL.Dashboard.DAO
+		SccLocalPath2 = Prosegur.LV.SOL.Dashboard.DAO
+		SccProjectUniqueName3 = Prosegur.LV.SOL.Dashboard.Core\\Prosegur.LV.SOL.Dashboard.Core.csproj
+		SccProjectName3 = Prosegur.LV.SOL.Dashboard.Core
+		SccLocalPath3 = Prosegur.LV.SOL.Dashboard.Core
+		SccProjectUniqueName4 = TestConsole\\TestConsole.csproj
+		SccProjectName4 = TestConsole
+		SccLocalPath4 = TestConsole
+		SccProjectUniqueName5 = Prosegur.LV.SOL.Dashboard.UI.Web\\Prosegur.LV.SOL.Dashboard.UI.Web.csproj
+		SccProjectName5 = Prosegur.LV.SOL.Dashboard.UI.Web
+		SccLocalPath5 = Prosegur.LV.SOL.Dashboard.UI.Web
+	EndGlobalSection
+EndGlobal

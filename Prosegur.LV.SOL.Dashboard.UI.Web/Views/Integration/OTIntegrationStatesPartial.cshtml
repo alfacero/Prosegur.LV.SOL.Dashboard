@@ -1,0 +1,441 @@
+﻿@model Prosegur.LV.SOL.Dashboard.UI.Web.Models.OTIntegrationFilterViewModel
+
+@{
+    string viewName = Html.ViewData["ViewName"].ToString();
+    string objectIdsFormat = viewName + "_{0}";
+}
+
+<div class="card">
+    <div class="card-body collapse show" id="@string.Format(objectIdsFormat, "dashBoardBody")">
+
+        <div id="@string.Format(objectIdsFormat, "chart")"></div>
+
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="@string.Format(objectIdsFormat, "modalFilters")">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form id="@string.Format(objectIdsFormat, "formFilters")">
+                    <div class="form-group">
+                        @Html.LabelFor(f => f.PeriodFromHours, new { @class = "col-form-label" })
+                        @Html.TextBoxFor(f => f.PeriodFromHours, new { @class = "form-control", type = "number" })
+                        @Html.ValidationMessageFor(f => f.PeriodFromHours)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(f => f.Delegations, new { @class = "col-form-label" })
+                        @Html.DropDownListFor(f => f.DelegationCodes, Model.Delegations, new { multiple = "multiple", @class = "form-control" })
+                        @Html.ValidationMessageFor(f => f.DelegationCodes)
+                    </div>
+
+                    <input type="hidden" name="__prefix" value="@ViewData.TemplateInfo.HtmlFieldPrefix" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-target="#@string.Format(objectIdsFormat, "modalFilters")" id="@string.Format(objectIdsFormat, "acceptFilter")">Aceptar</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="@string.Format(objectIdsFormat, "intervalContainer")"></div>
+
+<div class="modal fade" id="@string.Format(objectIdsFormat, "modalDetails")" tabindex="-1" role="dialog" aria-hidden="true"></div>
+
+<input type="hidden" id="@string.Format(objectIdsFormat, "routeWithErrors")" value="" />
+
+<script type="text/javascript">
+
+    $(function () {
+
+        var horBarChartSummary;
+        var chartData;
+
+        var refreshTimeSecondsInterval = @Prosegur.LV.SOL.Dashboard.Core.Configuracion.RefrescoAutomaticoSegundos;
+        var nextRefreshSeconds;
+        var loadingMessage = 'Procesando datos...'
+
+        var labelError;
+        var labelWarning;
+
+        var $intervalContainer = $('#@string.Format(objectIdsFormat, "intervalContainer")');
+
+        $("#@Html.IdFor(f => f.PeriodFromHours)")
+            .spinner({
+                max: 24,
+                min: 0
+            }).on('input', function () {
+                if ($(this).data('onInputPrevented')) return;
+                var val = this.value,
+                    $this = $(this),
+                    max = $this.spinner('option', 'max'),
+                    min = $this.spinner('option', 'min');
+                // We want only number, no alpha.
+                // We set it to previous default value.
+                if (!val.match(/^[+-]?[\d]{0,}$/)) val = $(this).data('defaultValue');
+                this.value = val > max ? max : val < min ? min : val;
+            }).on('keydown', function (e) {
+                // we set default value for spinner.
+                if (!$(this).data('defaultValue')) $(this).data('defaultValue', this.value);
+                // To handle backspace
+                $(this).data('onInputPrevented', e.which === 8 ? true : false);
+            });
+
+        var gettingIntegrationStates = false;
+
+        var refreshButton;
+
+        var automaticRefreshSet = false;
+
+        horBarChartSummary = Highcharts.chart('@string.Format(objectIdsFormat, "chart")', {
+            chart: {
+                type: 'bar',
+                height: '70%'
+            },
+            credits: {
+                enabled: false
+            },
+            title: { text: '@Html.Raw(ViewData["ChartTitle"].ToString())' },
+            xAxis: {
+                labels: {
+                    enabled: false
+                }
+            },
+            tooltip: {
+                headerFormat: '',
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            yAxis: {
+                min: 0,
+                allowDecimals: false,
+                title: {
+                    enabled: false
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    stacking: 'percentaje',
+                    events: {
+                        click: function (event) {
+
+                            if (this.userOptions.statusCode == 'ER') {
+
+                                var $modalDetails = $('#@string.Format(objectIdsFormat, "modalDetails")');
+
+                                var dataToPost = $('#@string.Format(objectIdsFormat, "formFilters")').serialize();
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("OTErrorQueueMessages", "Integration")',
+                                    traditional: true,
+                                    data: dataToPost,
+                                    success: function (response, textStatus, jqXHR) {
+
+                                        if (response.result) {
+
+                                            $modalDetails.html(response.data);
+                                            $modalDetails.modal('show');
+
+                                        }
+                                        else {
+
+                                            labelError = horBarChartSummary.addChartLabel('error', response.data);
+
+                                        }
+                                    },
+                                    beforeSend: function (jqXHR, settings) {
+
+                                        if (labelError !== undefined) {
+                                            labelError.destroy();
+                                        }
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+
+                                        if (jqXHR.status != 401) {
+
+                                            horBarChartSummary.hideLoading();
+
+                                            labelError = horBarChartSummary.addChartLabel('error', errorThrown);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            },
+            exporting: {
+                menuItemDefinitions: {
+                    parameters: {
+                        onclick: function () {
+                            $('#@string.Format(objectIdsFormat, "modalFilters")').modal('show');
+                        },
+                        text: 'Parametros'
+                    },
+                    autoRefresh: {
+                        onclick: function () {
+
+                            if (chartData !== undefined && chartData.length > 0) {
+
+                                nextRefreshSeconds = refreshTimeSecondsInterval;
+
+                                automaticRefreshSet = true;
+
+                                AddRefreshButton();
+
+                                RefreshAction();
+
+                                horBarChartSummary.update({
+                                    exporting: {
+                                        enabled: false
+                                    }
+                                });
+
+                            }
+                        },
+                        text: 'Refresco Automatico'
+                    }
+                },
+                buttons: {
+                    contextButton: {
+                        menuItems: ['parameters', 'autoRefresh']
+                    }
+                }
+            },
+        });
+
+        function UpdateIntegrationSummary() {
+
+            var subTitle = '';
+            $('#@Html.IdFor(f => f.DelegationCodes)').find(":selected").each(function (idx, value) {
+                subTitle += (idx > 0 ? ", " : " ") + $(value).text();
+            });
+
+            horBarChartSummary.setTitle({ text: '@Html.Raw(ViewData["ChartTitle"].ToString())' }, { text: subTitle + ' - Últimas ' + $('#@Html.IdFor(f => f.PeriodFromHours)').val() + " horas" }, true);
+
+            var dataToPost = $('#@string.Format(objectIdsFormat, "formFilters")').serialize()
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action(ViewContext.RouteData.Values["action"].ToString(), "Integration")',
+                data: dataToPost,
+                beforeSend: function (jqXHR, settings) {
+
+                    while (horBarChartSummary.series.length > 0) {
+                        horBarChartSummary.series[0].remove(false);
+                    }
+
+                    horBarChartSummary.redraw();
+
+                    if (labelError !== undefined) {
+                        labelError.destroy();
+                        labelError = undefined;
+                    }
+
+                    if (labelWarning !== undefined) {
+                        labelWarning.destroy();
+                        labelWarning = undefined;
+                    }
+
+                    if (chartData === undefined || chartData.length == 0) {
+                        horBarChartSummary.showLoading(loadingMessage);
+                    }
+                    
+                },
+                complete: function () {
+                    gettingIntegrationStates = false;
+                }
+            })
+            .then(function (response, textStatus, jqXHR) {
+
+                horBarChartSummary.hideLoading();
+
+                if (response.result) {
+
+                    var jsonData = JSON.parse(response["data"]);
+
+                    var otIntegrationSummary = jsonData.OTIntegrationStatesSummary;
+
+                    var seriesLabel = new Array();
+
+                    var seriesColor = new Array();
+
+                    chartData = [];
+
+                    for (var key in otIntegrationSummary) {
+                        if (otIntegrationSummary.hasOwnProperty(key)) {
+                            var messageState = otIntegrationSummary[key];
+
+                            if (messageState.Quantity > 0) {
+
+                                data = {
+                                    name: messageState.IntegrationState.Description,
+                                    data: [messageState.Quantity],
+                                    statusCode: messageState.IntegrationState.Code
+                                }
+
+                                if (messageState.IntegrationState.Code == 'PE') {
+                                    data.color = '#ffff00';
+                                }
+                                if (messageState.IntegrationState.Code == 'ER') {
+                                    data.color = '#ff0000';
+                                }
+
+                                chartData.push(data);
+                            }
+                        }
+                    }
+
+                    if (chartData !== undefined && chartData.length > 0) {
+
+                        $.each(chartData, function (itemNo, item) {
+                            horBarChartSummary.addSeries({
+                                name: item.name,
+                                data: item.data,
+                                statusCode: item.statusCode,
+                                color: item.color
+                            }, true);
+                        })
+
+                        if (automaticRefreshSet) {
+                            AddRefreshButton();
+                        }
+
+                    }
+                    else {
+
+                        labelWarning = horBarChartSummary.addChartLabel('warning', 'No hay datos');
+
+                        return $.Deferred().reject(jqXHR, textStatus, 'NO DATA').promise();
+
+                    }
+                }
+                else {
+                    
+                    return $.Deferred().reject(jqXHR, textStatus, response.data).promise();
+
+                }
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+
+                if (jqXHR.status != 401) {
+
+                    if (errorThrown != 'NO DATA') {
+
+                        chartData = [];
+
+                        horBarChartSummary.hideLoading();
+
+                        labelError = horBarChartSummary.addChartLabel('error', errorThrown);
+
+                    }
+
+                    if (automaticRefreshSet) {
+
+                        ClearInterval();
+
+                        horBarChartSummary.update({
+                            exporting: {
+                                enabled: true
+                            }
+                        });
+                    }
+
+                }
+
+            }); 
+        }
+
+        $("#@string.Format(objectIdsFormat, "acceptFilter")").click(function (e) {
+            
+            if ($('#@string.Format(objectIdsFormat, "formFilters")').valid()) {
+
+                $('#@string.Format(objectIdsFormat, "modalFilters")').modal('hide');
+                
+                UpdateIntegrationSummary();
+            }
+        });
+
+        function ClearInterval() {
+
+            automaticRefreshSet = false;
+
+            var interval = $intervalContainer.data('activeInterval');
+
+            clearInterval(interval);
+
+            $intervalContainer.removeData('activeInterval');
+        }
+
+        function AddRefreshButton() {
+
+            refreshButton = horBarChartSummary.renderer.button(refreshTimeSecondsInterval + 'ˮ', undefined, undefined, function () {
+
+                ClearInterval();
+
+                horBarChartSummary.update({
+                    exporting: {
+                        enabled: true
+                    }
+                });
+
+                if (refreshButton.element !== undefined) {
+                    refreshButton.destroy();
+                }
+
+
+            }).add();
+
+            var textX = horBarChartSummary.plotWidth;
+            var textY = horBarChartSummary.plotTop;
+
+            textX = textX - refreshButton.getBBox().width - horBarChartSummary.plotLeft - 20;
+
+            refreshButton.align({ x: textX, y: textY });
+
+        }
+
+        function RefreshAction() {
+
+            var interval = $intervalContainer.data('activeInterval');
+            
+            interval = setInterval(function () {
+
+                if (nextRefreshSeconds > 0 && !gettingIntegrationStates) {
+
+                    nextRefreshSeconds--;
+
+                    refreshButton.attr('text', nextRefreshSeconds + "ˮ");
+
+                }
+
+                if (nextRefreshSeconds == 0) {
+
+                    nextRefreshSeconds = refreshTimeSecondsInterval;
+
+                    if (refreshButton.element !== undefined) {
+                        refreshButton.destroy();
+                    }
+
+                    if (!gettingIntegrationStates) {
+                        gettingIntegrationStates = true;
+                        UpdateIntegrationSummary();
+                    }
+
+                }
+
+                                
+            }, 1000);
+
+            $intervalContainer.data('activeInterval', interval);
+
+        }
+
+    });
+
+</script>

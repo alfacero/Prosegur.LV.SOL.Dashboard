@@ -1,0 +1,23 @@
+﻿@model IEnumerable<Prosegur.LV.SOL.Dashboard.UI.Web.Models.IntegrationBarStateModel>
+
+<style>
+
+    .dot {
+        height: 25px;
+        width: 25px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+</style>
+
+<div class="card" style="width: 18rem;">
+    <div class="card-header">
+        Referencia
+    </div>
+    <ul class="list-group list-group-flush">
+        @Html.EditorFor(model => Model)
+    </ul>
+</div>
+
+

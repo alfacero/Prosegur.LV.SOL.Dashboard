@@ -1,0 +1,31 @@
+﻿@model Prosegur.LV.SOL.Dashboard.UI.Web.Models.LoginModel
+
+@{
+    ViewBag.Title = "Iniciar sesión";
+}
+
+@Styles.Render("~/Content/signin")
+
+@using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-signin" }))
+{
+    <h2 class="form-signin-heading">Ingrese</h2>
+
+    @Html.ValidationSummary(true)
+
+    <div class="form-group">
+        @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.UserName), autofocus = "autofocus" })
+        @Html.ValidationMessageFor(m => m.UserName)
+
+        @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = HttpUtility.HtmlDecode(Html.DisplayNameFor(m => m.Password).ToHtmlString()), autofocus = "autofocus" })
+        @Html.ValidationMessageFor(m => m.Password)
+    </div>
+    <div class="form-check">
+        @Html.CheckBoxFor(m => m.RememberMe, new { @class = "checkbox" })
+        @Html.LabelFor(m => m.RememberMe, Html.Raw(Html.DisplayNameFor(m => m.RememberMe)).ToString(), new { @class = "form-check-label" })
+    </div>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Aceptar</button>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
