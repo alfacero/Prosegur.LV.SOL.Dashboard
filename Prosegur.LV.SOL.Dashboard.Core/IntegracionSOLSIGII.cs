@@ -262,6 +262,10 @@ namespace Prosegur.LV.SOL.Dashboard.Core
             var RutasFinalizadasCerradas = SRFC.GetRutasFinalizadasCerradas(DateTime.Now.AddDays(offsetDias), lstDelegaciones);
 
 
+            //Esto es al pedo total y no tiene sentido implementarlo me parece
+            //var SIGII = new DAO.SIGIISOL_Ruta();
+            //var Rutetas = SIGII.GetRutas(DateTime.Now.AddDays(offsetDias), vs);
+
             var JMS = new DAO.JMSEnvio();
             var Mensajes = JMS.GetMensajesCierreFact(lstDelegaciones, DateTime.Now.AddDays(offsetDias));
 

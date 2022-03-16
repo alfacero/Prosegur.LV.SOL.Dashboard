@@ -24,5 +24,7 @@ namespace Prosegur.LV.SOL.Dashboard.Entities
         public string Atributo2 { set; get; }
 
         public string Integracion { set; get; }
+
+        public string Cod_ruta { set; get; }
     }
 }

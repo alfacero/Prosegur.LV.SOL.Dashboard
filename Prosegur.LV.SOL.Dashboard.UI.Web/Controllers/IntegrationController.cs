@@ -455,7 +455,7 @@ namespace Prosegur.LV.SOL.Dashboard.UI.Web.Controllers
 
         private ActionResult ListaErrores(List<int> errorJmsIds, List<string> sigIIProgrammationPendings)
         {
-            List<JmsQueueProgrammation> queueMessages = new List<JmsQueueProgrammation>();
+            List<JmsQueueProgrammationPerRoute> queueMessages = new List<JmsQueueProgrammationPerRoute>();
 
             try
             {
@@ -466,10 +466,11 @@ namespace Prosegur.LV.SOL.Dashboard.UI.Web.Controllers
                     IList<Entities.JMSEnvioMensaje> jmsEnvioMensajesError = colaJmsEnvio.GetMensajes(errorJmsIds.ToArray());
 
                     queueMessages = (from m in jmsEnvioMensajesError
-                                     select new JmsQueueProgrammation()
+                                     select new JmsQueueProgrammationPerRoute()
                                      {
                                          Observation = m.Observacion,
-                                         Delegation = m.Delegacion
+                                         Delegation = m.Delegacion,
+                                         Route = m.Cod_ruta
                                      }).ToList();
                 }
             }
@@ -491,10 +492,11 @@ namespace Prosegur.LV.SOL.Dashboard.UI.Web.Controllers
 
                 foreach (string data in sigIIProgrammationPendings)
                 {
-                    queueMessages.Add(new JmsQueueProgrammation()
+                    queueMessages.Add(new JmsQueueProgrammationPerRoute()
                     {
                         Observation = "Ha ocurrido un error. Comuníquese con el CAU (Centro de atención de Usuarios)",
-                        Delegation = data
+                        Delegation = data,
+                        Route = String.Empty
                     });
                 }
             }

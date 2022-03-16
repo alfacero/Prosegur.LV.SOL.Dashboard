@@ -123,7 +123,7 @@
                     events: {
                         click: function (event) {
                             if (this.userOptions.statusCode == 3 && this.userOptions.data[event.point.index][1] > 0) {
-
+                                
                                 var delegation = otIntegrationSummary.Delegations[event.point.index];
 
                                 var $modalDetails = $('#@string.Format(objectIdsFormat, "modalDetails")');
@@ -132,9 +132,27 @@
                                 var $inputHiddenSigIIProgrammationPendings = $('#@string.Format(objectIdsFormat, "sigIIProgrammationPendings")');
 
                                 var dataToPost = new Object();
-
+                                
                                 var messagesError = $inputHiddenMessageIdsWithErrors.val().split(',');
                                 dataToPost.errorJmsIds = [];
+
+                                var delegationsWithError = [];
+                                for (var del in otIntegrationSummary.Delegations) {
+                                    for (var message in messagesError) {
+                                        if (messagesError[message].split('|')[0] == otIntegrationSummary.Delegations[del].Code &&
+                                            !delegationsWithError.includes(otIntegrationSummary.Delegations[del])) {
+
+                                            delegationsWithError.push(otIntegrationSummary.Delegations[del]);
+
+                                        }
+                                    }
+                                }
+                                
+                                if (delegationsWithError.length === this.userOptions.data.length) {
+                                    delegation = delegationsWithError[event.point.index];
+                                }
+                                
+                                
                                 for (var message in messagesError) {
                                     if (messagesError[message].split('|')[0] == delegation.Code) {
 

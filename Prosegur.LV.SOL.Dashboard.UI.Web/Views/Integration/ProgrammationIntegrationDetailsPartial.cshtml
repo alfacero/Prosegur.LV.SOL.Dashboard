@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Prosegur.LV.SOL.Dashboard.UI.Web.Models.JmsQueueProgrammation>
+﻿@model IEnumerable<Prosegur.LV.SOL.Dashboard.UI.Web.Models.JmsQueueProgrammationPerRoute>
 
 <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -12,11 +12,13 @@
             <div class="container-fluid">
                 <div class="row border border-dark rounded-top">
                     <div class="col-sm-1 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().Delegation)</div>
-                    <div class="col-sm-11 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().Observation)</div>
+                    <div class="col-sm-1 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().Route)</div>
+                    <div class="col-sm-10 text-center text-white bg-secondary border border-dark border-top-0 border-left-0 border-bottom-0">@Html.DisplayNameFor(m => m.FirstOrDefault().Observation)</div>
                     @foreach (var item in Model)
                     {
                         <div class="col-sm-1 text-center border border-dark border-left-0 border-bottom-0">@Html.Raw(item.Delegation)</div>
-                        <div class="col-sm-11 text-center border border-dark border-left-0 border-bottom-0">@Html.Raw(item.Observation)</div>
+                        <div class="col-sm-1 text-center border border-dark border-left-0 border-bottom-0">@Html.Raw(item.Route)</div>
+                        <div class="col-sm-10 text-center border border-dark border-left-0 border-bottom-0">@Html.Raw(item.Observation)</div>
                     }
                 </div>
             </div>

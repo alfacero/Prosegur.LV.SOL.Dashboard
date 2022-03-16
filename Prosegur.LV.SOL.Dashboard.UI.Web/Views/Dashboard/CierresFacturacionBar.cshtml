@@ -7,17 +7,20 @@
 
 
 <div class="row my-2">
+    <div class="col-sm-2">
+        @{ Html.RenderPartial("IntegrationBarStateReferencesPartial", Prosegur.LV.SOL.Dashboard.UI.Web.Models.IntegrationBarStateModel.GetAll()); }
+    </div>
     <div class="col-sm-4">
         @{ Html.RenderAction("CierresFactPorDelegacionPartial", "Integration"); }
     </div>
     @*<div class="col-sm-4">
-        @{ Html.RenderAction("ProgrammationBarPerRouteResourcesStatesPartial", "Integration"); }
-    </div>
-    <div class="col-sm-4">
-        @{ Html.RenderAction("ProgrammationBarPerGroupStatesPartial", "Integration"); }
-    </div>*@
+            @{ Html.RenderAction("ProgrammationBarPerRouteResourcesStatesPartial", "Integration"); }
+        </div>
+        <div class="col-sm-4">
+            @{ Html.RenderAction("ProgrammationBarPerGroupStatesPartial", "Integration"); }
+        </div>*@
 </div>
-<div class="row my-2">
+@*<div class="row my-2">
     <div class="col-sm-4">
         @{ Html.RenderPartial("IntegrationBarStateReferencesPartial", Prosegur.LV.SOL.Dashboard.UI.Web.Models.IntegrationBarStateModel.GetAll()); }
     </div>
@@ -26,8 +29,8 @@
     </div>
     <div class="col-sm-4">
         @{ Html.RenderAction("ProgrammationBarResourcesStatesPartial", "Integration"); }
-    </div>*@
-</div>
+    </div>
+</div>*@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
