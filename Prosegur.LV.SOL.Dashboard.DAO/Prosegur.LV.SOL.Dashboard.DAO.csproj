@@ -79,15 +79,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Dapper">
-      <HintPath>..\..\Lib\Dapper.dll</HintPath>
+      <HintPath>..\Lib\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.DataAccess, Version=4.122.19.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\Oracle.DataAccess.dll</HintPath>
     </Reference>
     <Reference Include="Prosegur.Framework.Dao, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\Prosegur.Framework.Dao.dll</HintPath>
+      <HintPath>..\Lib\Prosegur.Framework.Dao.dll</HintPath>
     </Reference>
     <Reference Include="Prosegur.Framework.Utilidades, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\Prosegur.Framework.Utilidades.dll</HintPath>
+      <HintPath>..\Lib\Prosegur.Framework.Utilidades.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
