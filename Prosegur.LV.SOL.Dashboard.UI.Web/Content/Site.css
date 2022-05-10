@@ -166,3 +166,10 @@ a.article, a.article:hover {
     top: 0;
     right: 0;
 }
+
+#chartcontainer {
+    height: 800px;
+    min-width: 320px;
+    max-width: 600px;
+    margin: 0 auto;
+}

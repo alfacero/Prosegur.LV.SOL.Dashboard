@@ -5,10 +5,10 @@
     string objectIdsFormat = viewName + "_{0}";
 }
 
-<div class="card">
+<div class="chartcontainer">
     <div class="card-body collapse show" id="@string.Format(objectIdsFormat, "dashBoardBody")">
 
-        <div id="@string.Format(objectIdsFormat, "chart")"></div>
+        <div  id="@string.Format(objectIdsFormat, "chart")"></div>
 
     </div>
 </div>
@@ -74,15 +74,15 @@
 
             var $this = $(this);
 
-            if ($this.val().length > 8) {
+            //if ($this.val().length > 8) {
 
-                $this.val($this.data('last_valid_selection'));
+            //    $this.val($this.data('last_valid_selection'));
 
-            } else {
+            //} else {
 
-                $this.data('last_valid_selection', $this.val());
+            //    $this.data('last_valid_selection', $this.val());
 
-            }
+            //}
 
         });
 
@@ -100,6 +100,11 @@
             xAxis: {
                 title: {
                     text: null
+                },
+                min: 0,
+                max: 8,
+                scrollbar: {
+                    enabled: true
                 }
             },
             yAxis: {
@@ -112,18 +117,22 @@
                 //    enabled: false
                 //}
             },
+            scrollbar: {
+                enabled: true
+            },
             plotOptions: {
                 bar: {
                     dataLabels: {
                         enabled: true  //,
                        // inside: true,
                     }
-                },
-                series: {
+                }
+            },
+            series: {
                     events: {
                         click: function (event) {
                             if (this.userOptions.statusCode == 3 && this.userOptions.data[event.point.index][1] > 0) {
-                                
+
                                 var delegation = otIntegrationSummary.Delegations[event.point.index];
 
                                 var $modalDetails = $('#@string.Format(objectIdsFormat, "modalDetails")');
@@ -132,7 +141,7 @@
                                 var $inputHiddenSigIIProgrammationPendings = $('#@string.Format(objectIdsFormat, "sigIIProgrammationPendings")');
 
                                 var dataToPost = new Object();
-                                
+
                                 var messagesError = $inputHiddenMessageIdsWithErrors.val().split(',');
                                 dataToPost.errorJmsIds = [];
 
@@ -147,12 +156,12 @@
                                         }
                                     }
                                 }
-                                
+
                                 if (delegationsWithError.length === this.userOptions.data.length) {
                                     delegation = delegationsWithError[event.point.index];
                                 }
-                                
-                                
+
+
                                 for (var message in messagesError) {
                                     if (messagesError[message].split('|')[0] == delegation.Code) {
 
@@ -211,8 +220,7 @@
                             }
                         }
                     }
-                }
-            },
+                },
             legend: {
                 enabled: false
             },
@@ -370,8 +378,8 @@
                         dataTotal.push(sum);
                     }
 
-                   
-                    
+
+
 
 
                     var $inputHidden = $('#@string.Format(objectIdsFormat, "messageIdsWithErrors")');

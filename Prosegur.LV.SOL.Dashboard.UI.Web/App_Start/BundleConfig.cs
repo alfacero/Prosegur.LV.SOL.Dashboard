@@ -31,9 +31,13 @@ namespace Prosegur.LV.SOL.Dashboard.UI.Web
 
             //ATENCION: los archivos del Bundle fueron descargados de https://code.highcharts.com/#stylecss, de
             //la seccion de scripts donde el estilo es establecido por JS
+
             bundles.Add(new ScriptBundle("~/bundles/highCharts").Include(
-                "~/Scripts/highcharts.js",
-                "~/Scripts/exporting.js"));
+                "~/Scripts/highcharts/highstock.js",
+                "~/Scripts/highcharts/exporting.js",
+                "~/Scripts/highcharts/accessibility.js"
+                ));
+            //                "~/Scripts/highcharts/highcharts.js",
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
